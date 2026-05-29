@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Pump body -->
+  <rect x="28" y="12" width="44" height="72" rx="8" fill="#1a6b3a"/>
+  <rect x="34" y="18" width="32" height="28" rx="4" fill="#e8f5ee"/>
+  <!-- Display screen -->
+  <rect x="38" y="22" width="24" height="16" rx="2" fill="#1a3f6b"/>
+  <text x="50" y="34" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="monospace">€</text>
+  <!-- Hose -->
+  <path d="M72 48 Q88 48 88 64 Q88 78 78 78" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- Nozzle -->
+  <rect x="70" y="76" width="16" height="8" rx="3" fill="#555"/>
+  <rect x="82" y="78" width="6" height="4" rx="1" fill="#555"/>
+  <!-- Price labels -->
+  <rect x="36" y="52" width="28" height="8" rx="2" fill="#f5f4f0"/>
+  <text x="50" y="58" text-anchor="middle" fill="#1a6b3a" font-size="6" font-weight="bold" font-family="monospace">1.799</text>
+  <!-- Ground -->
+  <rect x="22" y="84" width="56" height="4" rx="2" fill="#8a8480"/>
+</svg>

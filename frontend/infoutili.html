@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarburUP — Info</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --surface2: #f0ede8;
+      --border: #e2ddd8;
+      --text: #1a1816;
+      --text-muted: #8a8480;
+      --text-light: #b0aba6;
+      --accent-b: #1a6b3a;
+      --accent-d: #1a3f6b;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .app-title {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .app-title:hover {
+      opacity: 0.7;
+    }
+    .back-link {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .back-link:hover {
+      color: var(--text);
+    }
+    main {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .info-page p {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .info-page p:first-of-type {
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .info-page p:last-of-type {
+      font-style: italic;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .info-page a {
+      color: var(--accent-d);
+      font-weight: 500;
+    }
+    .footer {
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 11px;
+      color: var(--text-light);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-top">
+      <a href="/" class="app-title">
+        <img src="/icon.svg" alt="" style="width:28px;height:28px;border-radius:6px;vertical-align:middle;margin-right:8px" />
+        CarburUP
+      </a>
+      <a href="/" class="back-link">&larr; Torna ai prezzi</a>
+    </div>
+  </header>
+  <main>
+    <div class="info-page">
+      <p>
+        App volutamente copiata da <a href="https://benzup.netlify.app/">BenzUP</a>. 
+        <br> Realizzata da Andrea Rovarotti
+        per dimostrare la teoria esposta dallo stesso ideatore 
+        Dario Ferrero, tech writer per Codemotion, come indicato in
+        questo <a href="https://www.codemotion.com/magazine/it/intelligenza-artificiale/benzup-come-ho-creato-unapp-per-monitorare-il-costo-della-benzina-senza-scrivere-codice/" target="_blank" rel="noopener noreferrer">link</a>.
+        <br> Nell'articolo ha voluto dimostrare come sia facile creare una web app senza scrivere codice.
+      </p>
+      <p>
+        Ed è proprio quello che ho fatto io, o meglio: ha fatto <a href="https://opencode.ai/">OpenCode</a> per me. 
+        Esattamente come Dario, anche io sono partito dall'idea, con il vantaggio
+        di avere già il punto di partenza, il suo. 
+        <br> Ho chiamato la "mia" app CarburUP, in onore del suo nome.
+      </p>
+      <p>
+        BenzUP <em>"non fa niente di rivoluzionario"</em>, come detto dallo stesso autore, e come tale CarburUP. 
+      </p>
+      <p>
+        Nel mio caso ho utilizzato OpenCode integrato in Visual Studio Code, utilizzando l'LLM gratuito Big Pickle.
+        <br> Inoltre ho anche dato come input il link della sua web app, in modo da realizzare l'app il più simile possibile a quella di Dario.
+        <br> E i risultati sono stati strabilianti, anche perchè ho ottenuto in poco tempo (un pomeriggio) un risultato
+        molto simile al suo. 
+      </p>
+      <p>
+        E la cosa buffa è che io non sono nemmeno uno sviluppatore, ma semplicemente un appassionato "smanettone" 
+        a cui piace usare il suo tempo in progetti simili.
+      </p>
+      <p>
+        Ormai che l'AI sia potente non è più un tema, ma il tema sta diventando: 
+        riusciremo a stargli veramente dietro e a utilizzarla al meglio? 
+      </p>
+    </div>
+  </main>
+  <div class="footer">
+    Dati aggiornati quotidianamente tra le 8.00 e le 11.00<br />
+    Ministero delle Imprese e del Made in Italy
+  </div>
+</body>
+</html>
