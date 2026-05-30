@@ -1,15 +1,14 @@
 import { Pool } from 'pg'
-import type { IncomingMessage, ServerResponse } from 'http'
 
-let pool: Pool | null = null
-function getPool(): Pool {
+let pool = null
+function getPool() {
   if (!pool) {
     pool = new Pool({ connectionString: process.env.DATABASE_URL })
   }
   return pool
 }
 
-export default async function handler(_req: IncomingMessage, res: ServerResponse) {
+export default async function handler(_req, res) {
   try {
     const result = await getPool().query('SELECT id_impianto, desc_carburante, prezzo, is_self, dt_comu FROM prezzi')
     const prezzi = result.rows.map(row => ({

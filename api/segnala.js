@@ -1,15 +1,14 @@
 import { Pool } from 'pg'
-import type { IncomingMessage, ServerResponse } from 'http'
 
-let pool: Pool | null = null
-function getPool(): Pool {
+let pool = null
+function getPool() {
   if (!pool) {
     pool = new Pool({ connectionString: process.env.DATABASE_URL })
   }
   return pool
 }
 
-export default async function handler(req: IncomingMessage, res: ServerResponse) {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.statusCode = 405
     res.setHeader('Content-Type', 'application/json')
