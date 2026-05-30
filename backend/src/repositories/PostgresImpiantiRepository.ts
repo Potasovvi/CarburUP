@@ -22,28 +22,18 @@ export class PostgresImpiantiRepository implements IImpiantiRepository {
 
   async upsertMany(impianti: Impianto[]): Promise<void> {
     if (impianti.length === 0) return
-    const client = await this.pool.connect()
-    try {
-      await client.query('BEGIN')
-      for (const i of impianti) {
-        await client.query(
-          `INSERT INTO impianti (id, gestore, bandiera, comune, provincia, indirizzo)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           ON CONFLICT (id) DO UPDATE SET
-             gestore = EXCLUDED.gestore,
-             bandiera = EXCLUDED.bandiera,
-             comune = EXCLUDED.comune,
-             provincia = EXCLUDED.provincia,
-             indirizzo = EXCLUDED.indirizzo`,
-          [i.id, i.Gestore, i.Bandiera, i.Comune, i.Provincia, i.Indirizzo]
-        )
-      }
-      await client.query('COMMIT')
-    } catch (err) {
-      await client.query('ROLLBACK')
-      throw err
-    } finally {
-      client.release()
+
+    // Build multi-row upsert
+    const cols = ['id', 'gestore', 'bandiera', 'comune', 'provincia', 'indirizzo']
+    const values: string[] = []
+    const params: unknown[] = []
+    let i = 1
+    for (const imp of impianti) {
+      values.push(`($${i++}, $${i++}, $${i++}, $${i++}, $${i++}, $${i++})`)
+      params.push(imp.id, imp.Gestore, imp.Bandiera, imp.Comune, imp.Provincia, imp.Indirizzo)
     }
+    const sql = `INSERT INTO impianti (${cols.join(', ')}) VALUES ${values.join(', ')} ON CONFLICT (id) DO UPDATE SET gestore = EXCLUDED.gestore, bandiera = EXCLUDED.bandiera, comune = EXCLUDED.comune, provincia = EXCLUDED.provincia, indirizzo = EXCLUDED.indirizzo`
+
+    await this.pool.query(sql, params)
   }
 }

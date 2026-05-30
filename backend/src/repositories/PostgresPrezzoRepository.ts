@@ -21,29 +21,25 @@ export class PostgresPrezzoRepository implements IPrezzoRepository {
 
   async upsertMany(prezzi: Prezzo[]): Promise<void> {
     if (prezzi.length === 0) return
-    const client = await this.pool.connect()
-    try {
-      await client.query('BEGIN')
-      for (const p of prezzi) {
-        const id = `${p.idImpianto}|${p.descCarburante}|${p.isSelf}`
-        await client.query(
-          `INSERT INTO prezzi (id, id_impianto, desc_carburante, prezzo, is_self, dt_comu)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           ON CONFLICT (id) DO UPDATE SET
-             id_impianto = EXCLUDED.id_impianto,
-             desc_carburante = EXCLUDED.desc_carburante,
-             prezzo = EXCLUDED.prezzo,
-             is_self = EXCLUDED.is_self,
-             dt_comu = EXCLUDED.dt_comu`,
-          [id, p.idImpianto, p.descCarburante, p.prezzo, p.isSelf, p.dtComu]
-        )
-      }
-      await client.query('COMMIT')
-    } catch (err) {
-      await client.query('ROLLBACK')
-      throw err
-    } finally {
-      client.release()
+
+    // Build multi-row upsert
+    const cols = ['id', 'id_impianto', 'desc_carburante', 'prezzo', 'is_self', 'dt_comu']
+    const values: string[] = []
+    const params: unknown[] = []
+    let i = 1
+    for (const p of prezzi) {
+      values.push(`($${i++}, $${i++}, $${i++}, $${i++}, $${i++}, $${i++})`)
+      params.push(
+        `${p.idImpianto}|${p.descCarburante}|${p.isSelf}`,
+        p.idImpianto,
+        p.descCarburante,
+        p.prezzo,
+        p.isSelf,
+        p.dtComu,
+      )
     }
+    const sql = `INSERT INTO prezzi (${cols.join(', ')}) VALUES ${values.join(', ')} ON CONFLICT (id) DO UPDATE SET id_impianto = EXCLUDED.id_impianto, desc_carburante = EXCLUDED.desc_carburante, prezzo = EXCLUDED.prezzo, is_self = EXCLUDED.is_self, dt_comu = EXCLUDED.dt_comu`
+
+    await this.pool.query(sql, params)
   }
 }

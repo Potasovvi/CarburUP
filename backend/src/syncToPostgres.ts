@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { Pool } from 'pg'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
