@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getPool } from '../backend/src/db'
-import { PostgresPrezzoRepository } from '../backend/src/repositories/PostgresPrezzoRepository'
+import { getPool } from '../../backend/src/db'
+import { PostgresPrezzoRepository } from '../../backend/src/repositories/PostgresPrezzoRepository'
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   try {

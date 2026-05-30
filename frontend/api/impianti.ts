@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getPool } from '../backend/src/db'
-import { PostgresImpiantiRepository } from '../backend/src/repositories/PostgresImpiantiRepository'
+import { getPool } from '../../backend/src/db'
+import { PostgresImpiantiRepository } from '../../backend/src/repositories/PostgresImpiantiRepository'
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   try {

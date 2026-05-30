@@ -6,8 +6,8 @@ Monorepo (backend + frontend) for monitoring fuel prices in Turin, Italy. Data i
 
 ```
 backend/       Express API (:3001) — serves /api/impianti + /api/prezzi (local dev only)
-api/          Vercel Serverless Functions — GET /api/impianti, GET /api/prezzi, POST /api/segnala (production)
 frontend/      Vite + React (:5173) — proxies /api → :3001 in dev, served by Vercel in production
+frontend/api/  Vercel Serverless Functions — GET /api/impianti, GET /api/prezzi, POST /api/segnala (production)
 ```
 
 - **Repository pattern**: `IImpiantiRepository` and `IPrezzoRepository` have two implementations:
@@ -77,12 +77,12 @@ Set `DATABASE_URL` env to use PostgreSQL instead of JSON files (e.g. `postgresql
 ## Vercel (production)
 
 - **Frontend**: deployed as static site (Vite build → `frontend/dist/`)
-- **API**: 3 serverless functions in `api/` at project root:
-  - `api/impianti.ts` → GET /api/impianti
-  - `api/prezzi.ts` → GET /api/prezzi
-  - `api/segnala.ts` → POST /api/segnala
+- **API**: 3 serverless functions in `frontend/api/`:
+  - `frontend/api/impianti.ts` → GET /api/impianti
+  - `frontend/api/prezzi.ts` → GET /api/prezzi
+  - `frontend/api/segnala.ts` → POST /api/segnala
 - **Static file**: `frontend/public/infoutili.html` served at `/infoutili`
-- **Config**: `vercel.json` at root (build command, routes, function runtime)
+- **Config**: `frontend/vercel.json` (build command, routes, function runtime)
 - **Required env var**: `DATABASE_URL` (Neon or other PostgreSQL connection string)
 - `infoutili.html` lives in `frontend/public/` so Vite copies it to `dist/` during build
 
