@@ -6,3 +6,5 @@ database.json
 prezzo.json
 reports.json
 *.log
+*.tsbuildinfo
+dist-test/
