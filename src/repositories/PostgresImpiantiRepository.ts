@@ -22,7 +22,6 @@ export class PostgresImpiantiRepository implements IImpiantiRepository {
 
   async upsertMany(impianti: Impianto[]): Promise<void> {
     if (impianti.length === 0) return
-
     const cols = ['id', 'gestore', 'bandiera', 'comune', 'provincia', 'indirizzo']
     const values: string[] = []
     const params: unknown[] = []
@@ -32,7 +31,6 @@ export class PostgresImpiantiRepository implements IImpiantiRepository {
       params.push(imp.id, imp.Gestore, imp.Bandiera, imp.Comune, imp.Provincia, imp.Indirizzo)
     }
     const sql = `INSERT INTO impianti (${cols.join(', ')}) VALUES ${values.join(', ')} ON CONFLICT (id) DO UPDATE SET gestore = EXCLUDED.gestore, bandiera = EXCLUDED.bandiera, comune = EXCLUDED.comune, provincia = EXCLUDED.provincia, indirizzo = EXCLUDED.indirizzo`
-
     await this.pool.query(sql, params)
   }
 }

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getPool } from '../lib/db'
-import { PostgresPrezzoRepository } from '../lib/repositories/PostgresPrezzoRepository'
+import { getPool } from '../src/db'
+import { PostgresPrezzoRepository } from '../src/repositories/PostgresPrezzoRepository'
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   try {
@@ -8,7 +8,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     const prezzi = await repo.findAll()
     res.json(prezzi)
   } catch (err) {
-    console.error('Errore prezzi:', err)
-    res.status(500).json({ error: 'Failed to load prezzi' })
+    console.error("Errore prezzi:", err)
+    res.status(500).json({ error: "Failed to load prezzi" })
   }
 }

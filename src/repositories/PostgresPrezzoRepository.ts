@@ -21,7 +21,6 @@ export class PostgresPrezzoRepository implements IPrezzoRepository {
 
   async upsertMany(prezzi: Prezzo[]): Promise<void> {
     if (prezzi.length === 0) return
-
     const cols = ['id', 'id_impianto', 'desc_carburante', 'prezzo', 'is_self', 'dt_comu']
     const values: string[] = []
     const params: unknown[] = []
@@ -38,7 +37,6 @@ export class PostgresPrezzoRepository implements IPrezzoRepository {
       )
     }
     const sql = `INSERT INTO prezzi (${cols.join(', ')}) VALUES ${values.join(', ')} ON CONFLICT (id) DO UPDATE SET id_impianto = EXCLUDED.id_impianto, desc_carburante = EXCLUDED.desc_carburante, prezzo = EXCLUDED.prezzo, is_self = EXCLUDED.is_self, dt_comu = EXCLUDED.dt_comu`
-
     await this.pool.query(sql, params)
   }
 }

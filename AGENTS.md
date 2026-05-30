@@ -33,7 +33,7 @@ npm run scrape:prezzo  # tsx src/scraperPrezzo.ts — fetches, cross-ref, saves 
 npm run sync           # tsx src/syncToPostgres.ts — reads JSON, upserts into PostgreSQL
 npm run build          # tsc → dist/
 
-# Frontend (from frontend/)
+# Frontend / Vercel (from project root)
 npm run dev        # Vite dev :5173, proxies /api → localhost:3001
 npm run typecheck  # tsc --noEmit
 npm run build      # tsc -b && vite build → dist/
@@ -56,10 +56,10 @@ Set `DATABASE_URL` env to use PostgreSQL instead of JSON files (e.g. `postgresql
 | Layer    | Module system | Runner        |
 |----------|---------------|---------------|
 | Backend  | CommonJS      | tsx (not ts-node) |
-| Frontend | ESM           | Vite + tsc -b |
+| Frontend / Root | ESM      | Vite + tsc -b |
 | API (Vercel) | TypeScript | @vercel/node (esbuild) |
 
-- Frontend tsconfig: `noEmit: true`, `strict`, `noUnusedLocals`, `noUnusedParameters`
+- Root tsconfig: `noEmit: true`, `strict`, `noUnusedLocals`, `noUnusedParameters`
 - `database.json` is gitignored, auto-created on first scrape
 - `prezzo.json` is gitignored, auto-created on first prezzo scrape
 - `reports.json` is gitignored, auto-created on first segnala (local dev only)
@@ -77,16 +77,15 @@ Set `DATABASE_URL` env to use PostgreSQL instead of JSON files (e.g. `postgresql
 
 ## Vercel (production)
 
-- **Frontend**: deployed as static site (Vite build → `frontend/dist/`)
-- **API**: 3 serverless functions in `frontend/api/`:
-  - `frontend/api/impianti.ts` → GET /api/impianti
-  - `frontend/api/prezzi.ts` → GET /api/prezzi
-  - `frontend/api/segnala.ts` → POST /api/segnala
-- **Shared code**: `frontend/lib/` mirrors `backend/src/db.ts` + repositories (Vercel can't access `backend/` with root dir `/frontend`)
-- **Static file**: `frontend/public/infoutili.html` served at `/infoutili`
-- **Config**: `frontend/vercel.json` (build command, routes, function runtime)
+- **Frontend**: deployed as static site (Vite build → `dist/`)
+- **API**: 3 serverless functions in `api/` at project root:
+  - `api/impianti.ts` → GET /api/impianti
+  - `api/prezzi.ts` → GET /api/prezzi
+  - `api/segnala.ts` → POST /api/segnala
+- **Shared code**: `src/` at root mirrors `backend/src/db.ts` + repositories (Vercel can't access `backend/` with root dir `/frontend`)
+- **Static file**: `public/infoutili.html` served at `/infoutili`
+- **Config**: `vercel.json` at root (build command, routes, function runtime)
 - **Required env var**: `DATABASE_URL` (Neon or other PostgreSQL connection string)
-- `infoutili.html` lives in `frontend/public/` so Vite copies it to `dist/` during build
 
 ## GitHub Actions
 
