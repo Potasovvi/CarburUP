@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
+import cors from 'cors'
 import { join } from 'path'
 import { readFile, writeFile } from 'fs/promises'
 import { Pool } from 'pg'
@@ -25,6 +26,7 @@ const prezziRepo = usePostgres
   ? new PostgresPrezzoRepository(pool!)
   : new JsonPrezzoRepository()
 
+app.use(cors())
 app.use(express.json())
 app.use(express.static(join(__dirname, '..', '..', 'frontend', 'dist')))
 

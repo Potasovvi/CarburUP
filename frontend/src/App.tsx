@@ -26,6 +26,8 @@ const FUEL_COLORS: FuelColors = {
   Metano: '#f39c12',
 }
 
+const API_BASE = import.meta.env.VITE_API_URL ?? ''
+
 export default function App() {
   const [impianti, setImpianti] = useState<Impianto[]>([])
   const [prezzi, setPrezzi] = useState<Prezzo[]>([])
@@ -40,8 +42,8 @@ export default function App() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/impianti').then(r => r.json()),
-      fetch('/api/prezzi').then(r => r.json()),
+      fetch(`${API_BASE}/api/impianti`).then(r => r.json()),
+      fetch(`${API_BASE}/api/prezzi`).then(r => r.json()),
     ])
       .then(([impiantiData, prezziData]) => {
         setImpianti(impiantiData)
@@ -271,7 +273,7 @@ export default function App() {
           if (!reportMessage.trim()) return
           setReportStatus('sending')
           try {
-            const res = await fetch('/api/segnala', {
+            const res = await fetch(`${API_BASE}/api/segnala`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
