@@ -1,17 +1,33 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getPool } from '../src/db'
+import { Pool } from 'pg'
+import type { IncomingMessage, ServerResponse } from 'http'
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+let pool: Pool | null = null
+function getPool(): Pool {
+  if (!pool) {
+    pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  }
+  return pool
+}
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" })
+    res.statusCode = 405
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify({ error: "Method not allowed" }))
     return
   }
 
   try {
-    const { idImpianto, gestore, bandiera, comune, indirizzo, messaggio } = req.body
+    let body = ''
+    for await (const chunk of req) {
+      body += chunk
+    }
+    const { idImpianto, gestore, bandiera, comune, indirizzo, messaggio } = JSON.parse(body)
 
     if (!messaggio?.trim()) {
-      res.status(400).json({ error: "Il messaggio è obbligatorio" })
+      res.statusCode = 400
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify({ error: "Il messaggio è obbligatorio" }))
       return
     }
 
@@ -32,9 +48,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       [report.id, report.idImpianto, report.gestore, report.bandiera, report.comune, report.indirizzo, report.messaggio, report.createdAt],
     )
 
-    res.json({ success: true, id: report.id })
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify({ success: true, id: report.id }))
   } catch (err) {
     console.error("Errore salvataggio segnalazione:", err)
-    res.status(500).json({ error: "Errore durante il salvataggio della segnalazione" })
+    res.statusCode = 500
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify({ error: "Errore durante il salvataggio della segnalazione" }))
   }
 }

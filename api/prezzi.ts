@@ -1,14 +1,30 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getPool } from '../src/db'
-import { PostgresPrezzoRepository } from '../src/repositories/PostgresPrezzoRepository'
+import { Pool } from 'pg'
+import type { IncomingMessage, ServerResponse } from 'http'
 
-export default async function handler(_req: VercelRequest, res: VercelResponse) {
+let pool: Pool | null = null
+function getPool(): Pool {
+  if (!pool) {
+    pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  }
+  return pool
+}
+
+export default async function handler(_req: IncomingMessage, res: ServerResponse) {
   try {
-    const repo = new PostgresPrezzoRepository(getPool())
-    const prezzi = await repo.findAll()
-    res.json(prezzi)
+    const result = await getPool().query('SELECT id_impianto, desc_carburante, prezzo, is_self, dt_comu FROM prezzi')
+    const prezzi = result.rows.map(row => ({
+      idImpianto: row.id_impianto,
+      descCarburante: row.desc_carburante,
+      prezzo: row.prezzo,
+      isSelf: row.is_self,
+      dtComu: row.dt_comu ?? '',
+    }))
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(prezzi))
   } catch (err) {
     console.error("Errore prezzi:", err)
-    res.status(500).json({ error: "Failed to load prezzi" })
+    res.statusCode = 500
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify({ error: "Failed to load prezzi" }))
   }
 }

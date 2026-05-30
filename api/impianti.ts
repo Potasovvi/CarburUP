@@ -1,14 +1,31 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getPool } from '../src/db'
-import { PostgresImpiantiRepository } from '../src/repositories/PostgresImpiantiRepository'
+import { Pool } from 'pg'
+import type { IncomingMessage, ServerResponse } from 'http'
 
-export default async function handler(_req: VercelRequest, res: VercelResponse) {
+let pool: Pool | null = null
+function getPool(): Pool {
+  if (!pool) {
+    pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  }
+  return pool
+}
+
+export default async function handler(_req: IncomingMessage, res: ServerResponse) {
   try {
-    const repo = new PostgresImpiantiRepository(getPool())
-    const impianti = await repo.findAll()
-    res.json(impianti)
+    const result = await getPool().query('SELECT id, gestore, bandiera, comune, provincia, indirizzo FROM impianti ORDER BY gestore')
+    const impianti = result.rows.map(row => ({
+      id: row.id,
+      Gestore: row.gestore,
+      Bandiera: row.bandiera ?? '',
+      Comune: row.comune ?? '',
+      Provincia: row.provincia ?? '',
+      Indirizzo: row.indirizzo ?? '',
+    }))
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(impianti))
   } catch (err) {
     console.error("Errore impianti:", err)
-    res.status(500).json({ error: "Failed to load impianti" })
+    res.statusCode = 500
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify({ error: "Failed to load impianti" }))
   }
 }
