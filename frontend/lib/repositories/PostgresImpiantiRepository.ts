@@ -1,0 +1,38 @@
+import { Pool } from 'pg'
+import { Impianto, IImpiantiRepository } from './IImpiantiRepository'
+
+export class PostgresImpiantiRepository implements IImpiantiRepository {
+  private pool: Pool
+
+  constructor(pool: Pool) {
+    this.pool = pool
+  }
+
+  async findAll(): Promise<Impianto[]> {
+    const result = await this.pool.query('SELECT * FROM impianti ORDER BY gestore')
+    return result.rows.map(row => ({
+      id: row.id,
+      Gestore: row.gestore,
+      Bandiera: row.bandiera ?? '',
+      Comune: row.comune ?? '',
+      Provincia: row.provincia ?? '',
+      Indirizzo: row.indirizzo ?? '',
+    }))
+  }
+
+  async upsertMany(impianti: Impianto[]): Promise<void> {
+    if (impianti.length === 0) return
+
+    const cols = ['id', 'gestore', 'bandiera', 'comune', 'provincia', 'indirizzo']
+    const values: string[] = []
+    const params: unknown[] = []
+    let i = 1
+    for (const imp of impianti) {
+      values.push(`($${i++}, $${i++}, $${i++}, $${i++}, $${i++}, $${i++})`)
+      params.push(imp.id, imp.Gestore, imp.Bandiera, imp.Comune, imp.Provincia, imp.Indirizzo)
+    }
+    const sql = `INSERT INTO impianti (${cols.join(', ')}) VALUES ${values.join(', ')} ON CONFLICT (id) DO UPDATE SET gestore = EXCLUDED.gestore, bandiera = EXCLUDED.bandiera, comune = EXCLUDED.comune, provincia = EXCLUDED.provincia, indirizzo = EXCLUDED.indirizzo`
+
+    await this.pool.query(sql, params)
+  }
+}

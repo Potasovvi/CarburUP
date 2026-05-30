@@ -7,6 +7,7 @@ Monorepo (backend + frontend) for monitoring fuel prices in Turin, Italy. Data i
 ```
 backend/       Express API (:3001) — serves /api/impianti + /api/prezzi (local dev only)
 frontend/      Vite + React (:5173) — proxies /api → :3001 in dev, served by Vercel in production
+frontend/lib/  Shared code (db.ts, repos) — imported by Vercel functions and usable by backend
 frontend/api/  Vercel Serverless Functions — GET /api/impianti, GET /api/prezzi, POST /api/segnala (production)
 ```
 
@@ -81,6 +82,7 @@ Set `DATABASE_URL` env to use PostgreSQL instead of JSON files (e.g. `postgresql
   - `frontend/api/impianti.ts` → GET /api/impianti
   - `frontend/api/prezzi.ts` → GET /api/prezzi
   - `frontend/api/segnala.ts` → POST /api/segnala
+- **Shared code**: `frontend/lib/` mirrors `backend/src/db.ts` + repositories (Vercel can't access `backend/` with root dir `/frontend`)
 - **Static file**: `frontend/public/infoutili.html` served at `/infoutili`
 - **Config**: `frontend/vercel.json` (build command, routes, function runtime)
 - **Required env var**: `DATABASE_URL` (Neon or other PostgreSQL connection string)
