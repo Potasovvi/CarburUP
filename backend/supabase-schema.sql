@@ -1,5 +1,5 @@
--- CarburUP — Supabase schema
--- Esegui questo SQL nel SQL Editor di Supabase
+-- CarburUP — Schema PostgreSQL
+-- Esegui questo SQL sul tuo database PostgreSQL (Neon, Railway, etc.)
 
 CREATE TABLE IF NOT EXISTS impianti (
   id TEXT PRIMARY KEY,

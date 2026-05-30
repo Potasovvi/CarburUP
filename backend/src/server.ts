@@ -1,28 +1,27 @@
 import express from 'express'
 import { join } from 'path'
 import { readFile, writeFile } from 'fs/promises'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { Pool } from 'pg'
 import { JsonImpiantiRepository } from './repositories/JsonImpiantiRepository'
 import { JsonPrezzoRepository } from './repositories/JsonPrezzoRepository'
-import { SupabaseImpiantiRepository } from './repositories/SupabaseImpiantiRepository'
-import { SupabasePrezzoRepository } from './repositories/SupabasePrezzoRepository'
+import { PostgresImpiantiRepository } from './repositories/PostgresImpiantiRepository'
+import { PostgresPrezzoRepository } from './repositories/PostgresPrezzoRepository'
 
 const app = express()
 const port = Number(process.env.PORT) || 3001
 
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_KEY
-const useSupabase = !!(supabaseUrl && supabaseKey)
-let supabase: SupabaseClient | null = null
-if (useSupabase) {
-  supabase = createClient(supabaseUrl, supabaseKey)
+const databaseUrl = process.env.DATABASE_URL
+const usePostgres = !!databaseUrl
+let pool: Pool | null = null
+if (usePostgres) {
+  pool = new Pool({ connectionString: databaseUrl })
 }
 
-const impiantiRepo = useSupabase
-  ? new SupabaseImpiantiRepository(supabase!)
+const impiantiRepo = usePostgres
+  ? new PostgresImpiantiRepository(pool!)
   : new JsonImpiantiRepository()
-const prezziRepo = useSupabase
-  ? new SupabasePrezzoRepository(supabase!)
+const prezziRepo = usePostgres
+  ? new PostgresPrezzoRepository(pool!)
   : new JsonPrezzoRepository()
 
 app.use(express.json())
@@ -73,19 +72,17 @@ app.post('/api/segnala', async (req, res) => {
     reports.push(report)
     await writeFile(filePath, JSON.stringify(reports, null, 2), 'utf-8')
 
-    // Se Supabase è configurato, salva anche lì
-    if (supabase) {
-      const { error } = await supabase.from('reports').insert({
-        id: report.id,
-        id_impianto: report.idImpianto,
-        gestore: report.gestore,
-        bandiera: report.bandiera,
-        comune: report.comune,
-        indirizzo: report.indirizzo,
-        messaggio: report.messaggio,
-        created_at: report.createdAt,
-      })
-      if (error) console.error('Errore salvataggio su Supabase:', error)
+    // Se PostgreSQL è configurato, salva anche lì
+    if (pool) {
+      try {
+        await pool.query(
+          `INSERT INTO reports (id, id_impianto, gestore, bandiera, comune, indirizzo, messaggio, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [report.id, report.idImpianto, report.gestore, report.bandiera, report.comune, report.indirizzo, report.messaggio, report.createdAt]
+        )
+      } catch (err) {
+        console.error('Errore salvataggio su PostgreSQL:', err)
+      }
     }
 
     res.json({ success: true, id: report.id })

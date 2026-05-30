@@ -1,23 +1,22 @@
-import { createClient } from '@supabase/supabase-js'
+import { Pool } from 'pg'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 import { Impianto } from './repositories/IImpiantiRepository'
 import { Prezzo } from './repositories/IPrezzoRepository'
-import { SupabaseImpiantiRepository } from './repositories/SupabaseImpiantiRepository'
-import { SupabasePrezzoRepository } from './repositories/SupabasePrezzoRepository'
+import { PostgresImpiantiRepository } from './repositories/PostgresImpiantiRepository'
+import { PostgresPrezzoRepository } from './repositories/PostgresPrezzoRepository'
 
 async function main() {
-  const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_KEY
+  const databaseUrl = process.env.DATABASE_URL
 
-  if (!supabaseUrl || !supabaseKey) {
-    console.error('ERRORE: SUPABASE_URL e SUPABASE_KEY devono essere impostati')
+  if (!databaseUrl) {
+    console.error('ERRORE: DATABASE_URL deve essere impostato')
     process.exit(1)
   }
 
-  const client = createClient(supabaseUrl, supabaseKey)
-  const impiantiRepo = new SupabaseImpiantiRepository(client)
-  const prezziRepo = new SupabasePrezzoRepository(client)
+  const pool = new Pool({ connectionString: databaseUrl })
+  const impiantiRepo = new PostgresImpiantiRepository(pool)
+  const prezziRepo = new PostgresPrezzoRepository(pool)
 
   const dbPath = join(__dirname, '..', 'database.json')
   const prezzoPath = join(__dirname, '..', 'prezzo.json')
@@ -52,6 +51,7 @@ async function main() {
     process.exit(1)
   }
 
+  await pool.end()
   console.log('Sincronizzazione completata con successo')
 }
 

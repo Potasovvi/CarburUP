@@ -8,21 +8,22 @@
     "start": "node dist/server.js",
     "scrape": "tsx src/scraperMimit.ts",
     "scrape:prezzo": "tsx src/scraperPrezzo.ts",
-    "sync": "tsx src/syncToSupabase.ts",
+    "sync": "tsx src/syncToPostgres.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.106.2",
     "adm-zip": "^0.5.16",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
     "csv-parser": "^3.0.0",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.0",
+    "@types/pg": "^8.20.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
