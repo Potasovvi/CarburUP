@@ -3,7 +3,6 @@
   "outputDirectory": "dist",
   "routes": [
     { "src": "/api/(.*)", "dest": "api/$1" },
-    { "src": "/infoutili", "dest": "/infoutili.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/infoutili", "dest": "/infoutili.html" }
   ]
 }
