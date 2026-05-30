@@ -96,7 +96,7 @@ app.post('/api/segnala', async (req, res) => {
 })
 
 app.get('/infoutili', (_req, res) => {
-  res.sendFile(join(__dirname, '..', '..', 'frontend', 'infoutili.html'))
+  res.sendFile(join(__dirname, '..', '..', 'frontend', 'public', 'infoutili.html'))
 })
 
 app.get('*', (_req, res) => {
