@@ -45,7 +45,7 @@ export default function App() {
     ])
       .then(([impiantiData, prezziData]) => {
         setImpianti(impiantiData)
-        setPrezzi(prezziData)
+        setPrezzi(prezziData.map((p: Prezzo) => ({ ...p, prezzo: Number(p.prezzo) })))
       })
       .catch(console.error)
       .finally(() => setLoading(false))
