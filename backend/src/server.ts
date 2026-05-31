@@ -54,6 +54,11 @@ app.get('/api/prezzi', async (_req, res) => {
 app.get('/api/last-update', async (_req, res) => {
   try {
     if (pool) {
+      await pool.query(`CREATE TABLE IF NOT EXISTS last_update (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )`)
       const result = await pool.query("SELECT value FROM last_update WHERE key = 'last_scrape'")
       if (result.rows.length > 0) {
         res.json({ lastUpdate: result.rows[0].value })

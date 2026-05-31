@@ -54,6 +54,11 @@ async function main() {
 
   // Salva timestamp ultimo aggiornamento
   try {
+    await pool.query(`CREATE TABLE IF NOT EXISTS last_update (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )`)
     const now = new Date().toISOString()
     await pool.query(
       `INSERT INTO last_update (key, value, updated_at) VALUES ('last_scrape', $1, NOW())

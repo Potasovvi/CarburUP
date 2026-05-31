@@ -16,6 +16,11 @@ export default async function handler(req, res) {
     return
   }
   try {
+    await getPool().query(`CREATE TABLE IF NOT EXISTS last_update (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )`)
     const result = await getPool().query("SELECT value FROM last_update WHERE key = 'last_scrape'")
     const lastUpdate = result.rows.length > 0 ? result.rows[0].value : null
     res.setHeader('Content-Type', 'application/json')
