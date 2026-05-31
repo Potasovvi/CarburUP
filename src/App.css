@@ -31,6 +31,7 @@ body {
 .meta-badge { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .meta-source { font-size: 11px; color: var(--text-muted); text-decoration: none; }
 .meta-source:hover { color: var(--text); }
+.header-last-update { width: 100%; text-align: right; font-size: 10px; color: var(--text-muted); margin-top: 4px; }
 .header-selectors { margin-top: 12px; }
 .comune-select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2); font-size: 14px; font-family: inherit; color: var(--text); cursor: pointer; }
 .fuel-toggle { display: flex; gap: 8px; margin-top: 12px; }

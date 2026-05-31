@@ -154,6 +154,11 @@ export default function App() {
             >
               Come funziona CarburUP
             </a>
+            {lastUpdate && (
+              <div className="header-last-update">
+                Ultimo aggiornamento: {new Date(lastUpdate).toLocaleString('it-IT')}
+              </div>
+            )}
           </div>
         </div>
 
@@ -393,11 +398,6 @@ export default function App() {
       })()}
 
       <footer className="footer">
-        {lastUpdate && (
-          <div className="last-update">
-            Ultimo aggiornamento: {new Date(lastUpdate).toLocaleString('it-IT')}
-          </div>
-        )}
         Dati aggiornati quotidianamente tra le 8.00 e le 11.00
         <br />
         Ministero delle Imprese e del Made in Italy
