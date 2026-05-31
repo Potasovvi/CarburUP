@@ -37,15 +37,18 @@ export default function App() {
   const [reportMessage, setReportMessage] = useState('')
   const [reportStatus, setReportStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
   const [loading, setLoading] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all([
       fetch('/api/impianti').then(r => r.json()),
       fetch('/api/prezzi').then(r => r.json()),
+      fetch('/api/last-update').then(r => r.json()),
     ])
-      .then(([impiantiData, prezziData]) => {
+      .then(([impiantiData, prezziData, updateData]) => {
         setImpianti(impiantiData)
         setPrezzi(prezziData.map((p: Prezzo) => ({ ...p, prezzo: Number(p.prezzo) })))
+        if (updateData.lastUpdate) setLastUpdate(updateData.lastUpdate)
       })
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -390,6 +393,11 @@ export default function App() {
       })()}
 
       <footer className="footer">
+        {lastUpdate && (
+          <div className="last-update">
+            Ultimo aggiornamento: {new Date(lastUpdate).toLocaleString('it-IT')}
+          </div>
+        )}
         Dati aggiornati quotidianamente tra le 8.00 e le 11.00
         <br />
         Ministero delle Imprese e del Made in Italy

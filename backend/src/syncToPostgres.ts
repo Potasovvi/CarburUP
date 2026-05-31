@@ -52,6 +52,18 @@ async function main() {
     process.exit(1)
   }
 
+  // Salva timestamp ultimo aggiornamento
+  try {
+    const now = new Date().toISOString()
+    await pool.query(
+      `INSERT INTO last_update (key, value, updated_at) VALUES ('last_scrape', $1, NOW())
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+      [now]
+    )
+  } catch (err) {
+    console.error('ERRORE salvataggio last_update:', err)
+  }
+
   await pool.end()
   console.log('Sincronizzazione completata con successo')
 }

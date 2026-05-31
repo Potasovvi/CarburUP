@@ -3,7 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import { join } from 'path'
-import { readFile, writeFile } from 'fs/promises'
+import { readFile, writeFile, stat } from 'fs/promises'
 import { Pool } from 'pg'
 import { JsonImpiantiRepository } from './repositories/JsonImpiantiRepository'
 import { JsonPrezzoRepository } from './repositories/JsonPrezzoRepository'
@@ -48,6 +48,24 @@ app.get('/api/prezzi', async (_req, res) => {
     res.json(prezzi)
   } catch (err) {
     res.status(500).json({ error: 'Failed to load prezzi' })
+  }
+})
+
+app.get('/api/last-update', async (_req, res) => {
+  try {
+    if (pool) {
+      const result = await pool.query("SELECT value FROM last_update WHERE key = 'last_scrape'")
+      if (result.rows.length > 0) {
+        res.json({ lastUpdate: result.rows[0].value })
+        return
+      }
+    }
+    const filePath = join(__dirname, '..', 'database.json')
+    const stats = await stat(filePath)
+    res.json({ lastUpdate: stats.mtime.toISOString() })
+  } catch (err) {
+    console.error('Errore last-update:', err)
+    res.json({ lastUpdate: null })
   }
 })
 
