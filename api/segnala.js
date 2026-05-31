@@ -29,6 +29,12 @@ export default async function handler(req, res) {
       res.end(JSON.stringify({ error: "Il messaggio è obbligatorio" }))
       return
     }
+    if (messaggio.length > 1000) {
+      res.statusCode = 400
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify({ error: "Il messaggio non può superare i 1000 caratteri" }))
+      return
+    }
 
     const report = {
       id: `${Date.now()}`,

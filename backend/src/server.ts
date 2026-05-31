@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import rateLimit from 'express-rate-limit'
 import { join } from 'path'
 import { readFile, writeFile } from 'fs/promises'
 import { Pool } from 'pg'
@@ -26,7 +27,9 @@ const prezziRepo = usePostgres
   ? new PostgresPrezzoRepository(pool!)
   : new JsonPrezzoRepository()
 
-app.use(cors())
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+}))
 app.use(express.json())
 app.use(express.static(join(__dirname, '..', '..', 'frontend', 'dist')))
 
@@ -48,11 +51,27 @@ app.get('/api/prezzi', async (_req, res) => {
   }
 })
 
-app.post('/api/segnala', async (req, res) => {
+const segnalaLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: { error: 'Troppe richieste, riprova tra un minuto' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+app.post('/api/segnala', segnalaLimiter, async (req, res) => {
   try {
     const { idImpianto, gestore, bandiera, comune, indirizzo, messaggio } = req.body
     if (!messaggio?.trim()) {
       res.status(400).json({ error: 'Il messaggio è obbligatorio' })
+      return
+    }
+    if (messaggio.length > 1000) {
+      res.status(400).json({ error: 'Il messaggio non può superare i 1000 caratteri' })
+      return
+    }
+    if (typeof idImpianto === 'string' && idImpianto.length > 50) {
+      res.status(400).json({ error: 'Parametri non validi' })
       return
     }
     const report = {
@@ -71,7 +90,13 @@ app.post('/api/segnala', async (req, res) => {
     try {
       const raw = await readFile(filePath, 'utf-8')
       reports = JSON.parse(raw)
-    } catch { /* file non esiste ancora */ }
+    } catch (err) {
+      if (typeof err === 'object' && err !== null && 'code' in err && (err as NodeJS.ErrnoException).code === 'ENOENT') {
+        // file non esiste, si parte da array vuoto
+      } else {
+        throw err
+      }
+    }
     reports.push(report)
     await writeFile(filePath, JSON.stringify(reports, null, 2), 'utf-8')
 

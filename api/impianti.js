@@ -8,7 +8,13 @@ function getPool() {
   return pool
 }
 
-export default async function handler(_req, res) {
+export default async function handler(req, res) {
+  if (req.method !== "GET") {
+    res.statusCode = 405
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify({ error: "Method not allowed" }))
+    return
+  }
   try {
     const result = await getPool().query('SELECT id, gestore, bandiera, comune, provincia, indirizzo FROM impianti ORDER BY gestore')
     const impianti = result.rows.map(row => ({
