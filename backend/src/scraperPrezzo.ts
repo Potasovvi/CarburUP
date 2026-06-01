@@ -15,6 +15,7 @@ async function fetchPrezzoDataUrl(): Promise<string> {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     },
+    timeout: 30000,
   })
   const $ = cheerio.load(html)
   const link = $('a')
@@ -66,7 +67,7 @@ function parsePrezzoCsv(text: string, toIds: Set<string>): Prezzo[] {
     results.push({
       idImpianto,
       descCarburante: (descIdx !== -1 ? parts[descIdx] : undefined)?.trim() ?? '',
-      prezzo: prezzoIdx !== -1 ? parseFloat(parts[prezzoIdx]?.trim() ?? '0') : 0,
+      prezzo: prezzoIdx !== -1 ? parseFloat((parts[prezzoIdx]?.trim() || '0').replace(',', '.')) || 0 : 0,
       isSelf: isSelfIdx !== -1 ? parts[isSelfIdx]?.trim() === '1' : false,
       dtComu: (dtComuIdx !== -1 ? parts[dtComuIdx] : undefined)?.trim() ?? '',
     })
@@ -75,13 +76,15 @@ function parsePrezzoCsv(text: string, toIds: Set<string>): Prezzo[] {
 }
 
 function bufferToString(buffer: Buffer | Uint8Array): string {
-  return Buffer.from(buffer).toString('utf-8')
+  const buf = Buffer.from(buffer)
+  const utf8 = buf.toString('utf-8')
+  return utf8.includes('\uFFFD') ? buf.toString('latin1') : utf8
 }
 
 export async function scrapePrezzo(): Promise<Prezzo[]> {
   const dataUrl = await fetchPrezzoDataUrl()
   const toIds = await loadImpiantiTOIds()
-  const { data: buffer } = await axios.get(dataUrl, { responseType: 'arraybuffer' })
+  const { data: buffer } = await axios.get(dataUrl, { responseType: 'arraybuffer', timeout: 30000 })
 
   if (dataUrl.endsWith('.zip')) {
     const zip = new AdmZip(buffer)

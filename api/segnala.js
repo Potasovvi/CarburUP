@@ -3,7 +3,7 @@ import { Pool } from 'pg'
 let pool = null
 function getPool() {
   if (!pool) {
-    pool = new Pool({ connectionString: process.env.DATABASE_URL })
+    pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 2, connectionTimeoutMillis: 5000 })
   }
   return pool
 }
@@ -16,10 +16,17 @@ export default async function handler(req, res) {
     return
   }
 
+  const MAX_BODY_BYTES = 102400 // 100 KB
   try {
     let body = ''
     for await (const chunk of req) {
       body += chunk
+      if (body.length > MAX_BODY_BYTES) {
+        res.statusCode = 413
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ error: 'Body troppo grande' }))
+        return
+      }
     }
     const { idImpianto, gestore, bandiera, comune, indirizzo, messaggio } = JSON.parse(body)
 
@@ -29,10 +36,40 @@ export default async function handler(req, res) {
       res.end(JSON.stringify({ error: "Il messaggio è obbligatorio" }))
       return
     }
-    if (messaggio.length > 1000) {
+    if (typeof messaggio !== 'string' || messaggio.length > 1000) {
       res.statusCode = 400
       res.setHeader('Content-Type', 'application/json')
       res.end(JSON.stringify({ error: "Il messaggio non può superare i 1000 caratteri" }))
+      return
+    }
+    if (typeof idImpianto !== 'string' || idImpianto.length > 50) {
+      res.statusCode = 400
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify({ error: "Parametri non validi" }))
+      return
+    }
+    if (gestore !== undefined && (typeof gestore !== 'string' || gestore.length > 100)) {
+      res.statusCode = 400
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify({ error: "Parametri non validi" }))
+      return
+    }
+    if (bandiera !== undefined && (typeof bandiera !== 'string' || bandiera.length > 100)) {
+      res.statusCode = 400
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify({ error: "Parametri non validi" }))
+      return
+    }
+    if (comune !== undefined && (typeof comune !== 'string' || comune.length > 100)) {
+      res.statusCode = 400
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify({ error: "Parametri non validi" }))
+      return
+    }
+    if (indirizzo !== undefined && (typeof indirizzo !== 'string' || indirizzo.length > 200)) {
+      res.statusCode = 400
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify({ error: "Parametri non validi" }))
       return
     }
 

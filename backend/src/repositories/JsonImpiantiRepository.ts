@@ -1,6 +1,7 @@
-import { readFile, writeFile } from 'fs/promises'
+import { readFile } from 'fs/promises'
 import { join } from 'path'
 import { Impianto, IImpiantiRepository } from './IImpiantiRepository'
+import { atomicWrite } from '../atomicWrite'
 
 export class JsonImpiantiRepository implements IImpiantiRepository {
   private filePath: string
@@ -23,6 +24,6 @@ export class JsonImpiantiRepository implements IImpiantiRepository {
     const map = new Map<string, Impianto>()
     for (const i of existing) map.set(i.id, i)
     for (const i of impianti) map.set(i.id, i)
-    await writeFile(this.filePath, JSON.stringify([...map.values()], null, 2), 'utf-8')
+    await atomicWrite(this.filePath, JSON.stringify([...map.values()], null, 2))
   }
 }

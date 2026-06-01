@@ -1,6 +1,7 @@
-import { readFile, writeFile } from 'fs/promises'
+import { readFile } from 'fs/promises'
 import { join } from 'path'
 import { Prezzo, IPrezzoRepository } from './IPrezzoRepository'
+import { atomicWrite } from '../atomicWrite'
 
 export class JsonPrezzoRepository implements IPrezzoRepository {
   private filePath: string
@@ -23,6 +24,6 @@ export class JsonPrezzoRepository implements IPrezzoRepository {
     const map = new Map<string, Prezzo>()
     for (const p of existing) map.set(`${p.idImpianto}|${p.descCarburante}|${p.isSelf}`, p)
     for (const p of prezzi) map.set(`${p.idImpianto}|${p.descCarburante}|${p.isSelf}`, p)
-    await writeFile(this.filePath, JSON.stringify([...map.values()], null, 2), 'utf-8')
+    await atomicWrite(this.filePath, JSON.stringify([...map.values()], null, 2))
   }
 }

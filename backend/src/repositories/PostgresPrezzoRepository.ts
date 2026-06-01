@@ -38,7 +38,7 @@ export class PostgresPrezzoRepository implements IPrezzoRepository {
         p.dtComu,
       )
     }
-    const sql = `INSERT INTO prezzi (${cols.join(', ')}) VALUES ${values.join(', ')} ON CONFLICT (id) DO UPDATE SET id_impianto = EXCLUDED.id_impianto, desc_carburante = EXCLUDED.desc_carburante, prezzo = EXCLUDED.prezzo, is_self = EXCLUDED.is_self, dt_comu = EXCLUDED.dt_comu`
+    const sql = `INSERT INTO prezzi (${cols.join(', ')}) VALUES ${values.join(', ')} ON CONFLICT (id) DO UPDATE SET id_impianto = COALESCE(NULLIF(EXCLUDED.id_impianto, ''), prezzi.id_impianto), desc_carburante = COALESCE(NULLIF(EXCLUDED.desc_carburante, ''), prezzi.desc_carburante), prezzo = COALESCE(NULLIF(EXCLUDED.prezzo, 0), prezzi.prezzo), is_self = COALESCE(NULLIF(EXCLUDED.is_self, false), prezzi.is_self), dt_comu = COALESCE(NULLIF(EXCLUDED.dt_comu, ''), prezzi.dt_comu`
 
     await this.pool.query(sql, params)
   }

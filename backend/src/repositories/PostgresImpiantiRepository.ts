@@ -32,7 +32,7 @@ export class PostgresImpiantiRepository implements IImpiantiRepository {
       values.push(`($${i++}, $${i++}, $${i++}, $${i++}, $${i++}, $${i++})`)
       params.push(imp.id, imp.Gestore, imp.Bandiera, imp.Comune, imp.Provincia, imp.Indirizzo)
     }
-    const sql = `INSERT INTO impianti (${cols.join(', ')}) VALUES ${values.join(', ')} ON CONFLICT (id) DO UPDATE SET gestore = EXCLUDED.gestore, bandiera = EXCLUDED.bandiera, comune = EXCLUDED.comune, provincia = EXCLUDED.provincia, indirizzo = EXCLUDED.indirizzo`
+    const sql = `INSERT INTO impianti (${cols.join(', ')}) VALUES ${values.join(', ')} ON CONFLICT (id) DO UPDATE SET gestore = COALESCE(NULLIF(EXCLUDED.gestore, ''), impianti.gestore), bandiera = COALESCE(NULLIF(EXCLUDED.bandiera, ''), impianti.bandiera), comune = COALESCE(NULLIF(EXCLUDED.comune, ''), impianti.comune), provincia = COALESCE(NULLIF(EXCLUDED.provincia, ''), impianti.provincia), indirizzo = COALESCE(NULLIF(EXCLUDED.indirizzo, ''), impianti.indirizzo`
 
     await this.pool.query(sql, params)
   }

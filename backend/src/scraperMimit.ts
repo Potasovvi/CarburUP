@@ -12,6 +12,7 @@ async function fetchDataUrl(): Promise<string> {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     },
+    timeout: 30000,
   })
   const $ = cheerio.load(html)
   const link = $('a')
@@ -56,12 +57,14 @@ function parsePipeCsv(text: string): Impianto[] {
 }
 
 function bufferToString(buffer: Buffer | Uint8Array): string {
-  return Buffer.from(buffer).toString('utf-8')
+  const buf = Buffer.from(buffer)
+  const utf8 = buf.toString('utf-8')
+  return utf8.includes('\uFFFD') ? buf.toString('latin1') : utf8
 }
 
 export async function scrapeMimit(): Promise<Impianto[]> {
   const dataUrl = await fetchDataUrl()
-  const { data: buffer } = await axios.get(dataUrl, { responseType: 'arraybuffer' })
+  const { data: buffer } = await axios.get(dataUrl, { responseType: 'arraybuffer', timeout: 30000 })
 
   if (dataUrl.endsWith('.zip')) {
     const zip = new AdmZip(buffer)

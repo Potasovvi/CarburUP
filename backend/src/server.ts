@@ -3,12 +3,13 @@ import express from 'express'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import { join } from 'path'
-import { readFile, writeFile, stat } from 'fs/promises'
+import { readFile, stat } from 'fs/promises'
 import { Pool } from 'pg'
 import { JsonImpiantiRepository } from './repositories/JsonImpiantiRepository'
 import { JsonPrezzoRepository } from './repositories/JsonPrezzoRepository'
 import { PostgresImpiantiRepository } from './repositories/PostgresImpiantiRepository'
 import { PostgresPrezzoRepository } from './repositories/PostgresPrezzoRepository'
+import { atomicWrite } from './atomicWrite'
 
 const app = express()
 const port = Number(process.env.PORT) || 3001
@@ -93,7 +94,23 @@ app.post('/api/segnala', segnalaLimiter, async (req, res) => {
       res.status(400).json({ error: 'Il messaggio non può superare i 1000 caratteri' })
       return
     }
-    if (typeof idImpianto === 'string' && idImpianto.length > 50) {
+    if (typeof idImpianto !== 'string' || idImpianto.length > 50) {
+      res.status(400).json({ error: 'Parametri non validi' })
+      return
+    }
+    if (gestore !== undefined && (typeof gestore !== 'string' || gestore.length > 100)) {
+      res.status(400).json({ error: 'Parametri non validi' })
+      return
+    }
+    if (bandiera !== undefined && (typeof bandiera !== 'string' || bandiera.length > 100)) {
+      res.status(400).json({ error: 'Parametri non validi' })
+      return
+    }
+    if (comune !== undefined && (typeof comune !== 'string' || comune.length > 100)) {
+      res.status(400).json({ error: 'Parametri non validi' })
+      return
+    }
+    if (indirizzo !== undefined && (typeof indirizzo !== 'string' || indirizzo.length > 200)) {
       res.status(400).json({ error: 'Parametri non validi' })
       return
     }
@@ -107,12 +124,13 @@ app.post('/api/segnala', segnalaLimiter, async (req, res) => {
       messaggio: messaggio.trim(),
       createdAt: new Date().toISOString(),
     }
-    // Salva sempre su JSON (locale)
+    // Salva sempre su JSON (locale) — con scrittura atomica
     const filePath = join(__dirname, '..', 'reports.json')
     let reports: unknown[] = []
     try {
       const raw = await readFile(filePath, 'utf-8')
       reports = JSON.parse(raw)
+      if (!Array.isArray(reports)) reports = []
     } catch (err) {
       if (typeof err === 'object' && err !== null && 'code' in err && (err as NodeJS.ErrnoException).code === 'ENOENT') {
         // file non esiste, si parte da array vuoto
@@ -121,7 +139,7 @@ app.post('/api/segnala', segnalaLimiter, async (req, res) => {
       }
     }
     reports.push(report)
-    await writeFile(filePath, JSON.stringify(reports, null, 2), 'utf-8')
+    await atomicWrite(filePath, JSON.stringify(reports, null, 2))
 
     // Se PostgreSQL è configurato, salva anche lì
     if (pool) {
