@@ -17,3 +17,4 @@ Attivo. Scraping giornaliero via GitHub Actions.
 - Dati da Open Data MIMIT (CSV pipe-delimited)
 - Repository pattern con fallback JSON/Postgres
 - Deploy su Vercel con serverless functions
+- Aggiunta per riattivare deploy
